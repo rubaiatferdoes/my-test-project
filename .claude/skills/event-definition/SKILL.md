@@ -62,7 +62,20 @@ a finding (possible data leak — see `auth-security` API3).
 
 ## 4. Tier 2 — the database effect
 
-Until `DB_TYPE` is set, every event's DB block reads:
+**First check `DB_ACCESS` in `.env`.** With `none`, this whole section
+is unreachable by design: every event's DB block reads `PENDING`
+permanently, step 8 does not run, and the tracer below is not used. Do
+not raise a `Q-` per event — raise ONE per module, naming the cheaper
+asks that would restore part of it (schema export, app SQL log, repo
+read access; see `docs/requirements/db/README.md`).
+
+Storage is then checked by the `@persistence` black-box probes, and each
+module's event file lists what could not be verified under
+**Not verifiable** (template). Never write "no DB effect" for something
+you simply could not see.
+
+With `DB_ACCESS=readonly`, and until `DB_TYPE` is set, every event's DB
+block reads:
 
 ```
 > PENDING — no read-only DB access yet. Raised as Q-0xx.

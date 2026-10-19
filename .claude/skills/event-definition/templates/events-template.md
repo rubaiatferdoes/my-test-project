@@ -75,6 +75,16 @@ one event. Listed once here rather than guessed at per event.
 |---|---|---|
 | `audit_log` | Row count rises on most actions | No foreign key to our record; would need the app SQL log to attribute |
 
+## Not verifiable (this module)
+Only in `DB_ACCESS=none` mode. What no probe through the API can establish,
+listed once per module so the quality report can state it.
+
+| What | Why it cannot be seen | What would restore it |
+|---|---|---|
+| Whether the API key is hashed at rest | Only the stored row can show it | A read-only DB user |
+| Exact table and columns written by EVT-012 | Nothing in the HTTP traffic names a table | App SQL log, or backend repo access |
+| Audit/analytics rows | No API surface | App SQL log |
+
 ## Standard comparison
 One row per applicable item from the standard event baseline
 (`references/event-baseline.md` in this skill) — `Match`es included; an

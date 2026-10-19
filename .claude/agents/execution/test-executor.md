@@ -21,7 +21,8 @@ and report what to fix.
 | API | `npm run test:api` | `automation/tests/api/` missing |
 | UI | `npm run test:ui` | `automation/tests/ui/` missing |
 | E2E | `npm run test:e2e` | `automation/tests/e2e/` missing |
-| DB | `npm run test:db` | `DB_TYPE` empty → `SKIPPED — DB pending` (DB steps inside API/E2E tests are skipped on their own) |
+| DB | `npm run test:db` | `DB_ACCESS=none` → `OUT — no access` (not "pending"). `readonly` but `DB_TYPE` empty → `SKIPPED — DB pending` (DB steps inside API/E2E tests are skipped on their own) |
+| Persistence | `npm run test:persistence` | `DB_ACCESS=readonly` (the DB suite covers it) or `automation/tests/persistence/` missing |
 
 **Suite-name argument** (`api`, `ui`, `e2e`, `smoke`, `db`): run only
 that row of the table above — no TC resolution needed.

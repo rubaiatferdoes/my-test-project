@@ -59,7 +59,7 @@ normal. Always report, never bless:
 
 | Topic | Decision | Status |
 |---|---|---|
-| Database | PostgreSQL 17, local, ours | Schema export in `docs/requirements/db/`, read-only `SELECT` user in `.env`. DB checks are IN scope from step 0 |
+| Database access | `DB_ACCESS` in `.env`: `none` or `readonly` | The trial owns its database, so `readonly` is available - but **run the blind pass with `none` first** (section 13): the `@persistence` probes, scored afterwards against the tracer. `none`: step 8 OUT, event DB mappings `PENDING`, DB column `Out (no access)`. `readonly`: schema export in `docs/requirements/db/`, `SELECT` user in `.env`, step 8 runs |
 | Object-level access (can `user` read `admin`'s account?) | Unknown | **Record what happens. Do not assume.** There is no product owner here — the finding is the output |
 | Delete behaviour (account with operations: blocked, cascade, or orphan?) | Unknown | Record it. Orphan rows in `operation_label` are a real defect class |
 | Rate limiting / quotas | Assume none | Confirm; a burst that returns 5xx is a finding |
@@ -211,7 +211,7 @@ approval first, unless the arguments say `allow-draft`.
    ── Automation ──
 7. /automation-api:api-test-generator  → api-test-reviewer
    /automation-ui:playwright-generator → playwright-reviewer
-8. /database:db-validator           schema check + fill the DB mappings
+8. /database:db-validator           schema check + fill the DB mappings (DB_ACCESS=readonly only)
 
    ── Run and react ──
 9.  /execution:test-executor        run suites → report with evidence

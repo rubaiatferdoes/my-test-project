@@ -53,10 +53,11 @@ automation/
     ├── api/<feature>.api.spec.ts
     ├── ui/<feature>.ui.spec.ts
     ├── e2e/<flow>.e2e.spec.ts
-    └── db/<area>.db.spec.ts         standalone integrity checks (@db)
+    ├── db/<area>.db.spec.ts         standalone integrity checks (@db) — DB_ACCESS=readonly only
+    └── persistence/<area>.persistence.spec.ts   black-box storage probes (@persistence) — DB_ACCESS=none
 ```
 
-`package.json` scripts: `test`, `test:api`, `test:ui`, `test:e2e`, `test:db` (`--project=db`),
+`package.json` scripts: `test`, `test:api`, `test:ui`, `test:e2e`, `test:db` (`--project=db`), `test:persistence` (`--project=persistence`),
 `test:headed`, `discover` (`tsx discovery/explore.ts`), `typecheck` (`tsc --noEmit`),
 `lint`, `report`.
 
@@ -204,6 +205,20 @@ test('[TC-001] create endpoint stores it for the right tenant',
   });
 ```
 
+### Persistence layer — storage checks with no database access
+
+Used when `DB_ACCESS=none`. Same three-layer rule as everywhere, API only:
+
+| Layer | Job | Never |
+|---|---|---|
+| `persistence/probes.ts` | HOW to run one probe: `roundTrip`, `cascade`, `recreateAfterDelete`, `exposureSweep`, `idempotency` — each returns facts | No `expect()` |
+| `persistence/helpers.ts` | Build a parent with children, track them for cleanup | No assertions, no raw `request.*` in tests |
+| Tests | WHAT to check, from the test case | No selectors, no raw HTTP |
+
+The key rule: **assert on a fresh `GET`, never on the write's echo.**
+When `DB_ACCESS=readonly`, `tests/db/` covers the same ground exactly and
+the probes are optional extras.
+
 ## 3. TypeScript rules
 
 - `strict: true`; ES modules (`import`/`export`); no `require`.
@@ -260,7 +275,7 @@ When a selector breaks later, the healer updates it in ONE place
 
 ## 6. Config (`playwright.config.ts`)
 
-- Projects: `api` (`tests/api`, no browser), `db` (`tests/db`, no browser),
+- Projects: `api` (`tests/api`, no browser), `db` (`tests/db`, no browser), `persistence` (`tests/persistence`, no browser),
   `ui` and `e2e` (Desktop Chrome; firefox/webkit present but commented out).
   Each script runs one project: `test:api` → `--project=api`, and so on.
 - timeout 60s (key-dead tests raise their own — see section 4), expect 10s, `fullyParallel: true`, `retries: process.env.CI ? 2 : 0`.
@@ -284,6 +299,7 @@ When a selector breaks later, the healer updates it in ONE place
 | A feature / a priority | `npx playwright test --grep @F-003` / `--grep @P0` |
 | A module / a flow step | `npx playwright test --grep @mod-keys` / `--grep @flow-3` |
 | DB integrity checks only (`tests/db/`) | `npm run test:db` |
+| Black-box storage probes (`tests/persistence/`) | `npm run test:persistence` |
 | Everything that touches the DB (integrity + API/E2E tests with DB steps) | `npx playwright test --grep @db` |
 | Both (AND) | `npx playwright test --grep "(?=.*@F-003)(?=.*@P0)"` |
 | Stability gate | `npx playwright test --repeat-each=3` |

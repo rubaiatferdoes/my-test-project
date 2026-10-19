@@ -43,8 +43,28 @@ these cases.
 | A `VAL-` marked `client` or `none` | A case that exercises the rule **at the API layer**, because the UI one proves nothing |
 | A `VAL-` that is a count or quota limit | A case that builds up to the limit and asserts the next one is rejected — the setup goes through the API, only the final attempt through the UI if the limit is also enforced there |
 | A sequence finding or dead end | A case that proves the broken behaviour, so a fix becomes detectable |
+| A write event (`EVT-` with a POST/PUT/PATCH) | `@persistence` **round-trip** case: write at the maximum, then `GET` in a fresh request and compare. And a **write confirmation**: sent vs echoed vs later `GET` |
+| A delete event | `@persistence` **cascade probe** (delete the parent, call each child id directly) and **delete-and-recreate** (the same unique value must be creatable again, or the row is still there) |
+| A field with a uniqueness rule | `@persistence` **delete-and-recreate** case |
+| A secret shown once | `@persistence` **exposure sweep** — every list, detail, error and export checked for the plain value |
+| A submit | `@persistence` **idempotency probe** — submit twice, count through the list endpoint |
 | `app-journey` E2E-01..E2E-07 | One case each, with the checkpoint table as expected results |
 | `auth-security` checklist | The security cases — K1..K7, the 401 set, tenant isolation |
+
+## `@persistence` cases — only when `DB_ACCESS=none`
+
+With no read-only database user there is no row-level check, so storage
+is tested through the API alone. Generate the rows above from the event
+definitions, tag them `@persistence`, and set `layer: [API]`. They are
+ordinary cases in every other respect: one file each, real expected
+results, `requirements:` citing the `EVT-` and `VAL-` they rest on.
+
+With `DB_ACCESS=readonly` skip them — the DB checks cover the same
+ground exactly — except the **exposure sweep** and **idempotency
+probe**, which stay as cheap extras.
+
+Never claim a `@persistence` pass proves hashing or encryption at rest.
+It proves the value was not *returned*. Say so in the case's notes.
 
 ## Writing the steps
 

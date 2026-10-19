@@ -34,9 +34,31 @@ Fill one row per step as it is run.
 | 5 test-case-designer | | — (judgement) | | |
 | 8 db-validator schema check | | Liquibase changelogs | | |
 | 10 test-healer triage | | The break we introduced | | |
+| **No-DB coverage** — `@persistence` probes, run blind with `DB_ACCESS=none` | | The tracer, run after with `DB_ACCESS=readonly` | | See the table below |
 
 Verdicts: **Correct** · **Partly** (what it missed) · **Wrong** (what it
 invented) · **Could not** (and why).
+
+## What no DB access costs
+
+The number to give the lead. Run the black-box probes **first, blind**
+(`DB_ACCESS=none`), score and approve them, and only then switch to
+`readonly` and run the tracer as the answer key. Plant the same defects
+for both passes, so each is found or missed by each method.
+
+| Planted defect | `@persistence` probe that should catch it | Caught blind? | Caught by tracer? |
+|---|---|---|---|
+| Delete an operation but leave its `operation_label` rows | Cascade probe | | |
+| Shrink `bank_account.name` to `VARCHAR(30)`, leaving the form at 40 | Round-trip | | |
+| Soft-delete instead of hard-delete | Delete-and-recreate | | |
+| Return a secret-like field in a list response | Exposure sweep | | |
+| Drop the `NOT NULL` on a column the form requires | (none - storage only) | | |
+| Store a value unhashed | (none - cannot be proven blind) | | |
+
+The last two are included on purpose: they show the permanent blind
+spots. **Result:** blind probes caught __ of __; the tracer caught __ of
+__. That ratio is what to tell the lead when asked what is lost without
+database access.
 
 ## Deliberate experiments
 

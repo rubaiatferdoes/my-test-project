@@ -49,7 +49,13 @@ verdict line that this is scoped, e.g. "Scoped to module:keys".
 | Every in-scope SEQ- and VAL- traced to a test case | |
 | No unresolved FIX- proposals or stale expectations | |
 
-8. **Risks and open questions:** plain-language impact, open Q- IDs,
+8. **What cannot be verified** (only when `DB_ACCESS=none`): a short,
+   fixed block in every report, never omitted — encryption or hashing at
+   rest, exact tables and columns, writes with no API surface, and schema
+   versus UI limits. State that `@persistence` passes prove a value was
+   not *returned*, not that it is stored safely. A green report that
+   leaves this out reads as full coverage, and it is not.
+9. **Risks and open questions:** plain-language impact, open Q- IDs,
    skipped areas (e.g. DB pending, customization out of scope), and —
    when no requirement documents exist — the fact that expected results
    rest on approved observation rather than a specification.

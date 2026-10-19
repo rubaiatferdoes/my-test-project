@@ -58,6 +58,24 @@ API/Docs TC IDs and print it first. Then:
 3. Run only the selected ones:
    `npx playwright test --project=api --grep "TC-014|TC-040"`.
 
+## `@persistence` tests — when `DB_ACCESS=none`
+
+Generate one test per approved `@persistence` case. All are pure API,
+live in `automation/tests/persistence/`, and use helpers in
+`automation/persistence/`. Run with `npm run test:persistence`.
+
+| Probe | The pattern |
+|---|---|
+| Round-trip | Create at the maximum length; `GET` it in a **separate** request; assert the stored value equals what was sent. Never assert on the POST echo — the echo is what the app *meant*, the GET is what it *kept* |
+| Write confirmation | Compare sent, echoed, and later-`GET` values; any mismatch fails |
+| Delete-and-recreate | Delete, then create again with the identical unique value; expect success. A duplicate rejection means the row survived |
+| Cascade probe | Create parent plus children; delete the parent; `GET` each child id; expect 404. A 200 is an orphan |
+| Exposure sweep | After the one-time reveal, fetch every list, detail, error and export route and search the bodies for the plain value |
+| Idempotency | Submit twice, then count through the list endpoint |
+
+The expected value is from the **test case**, as always. Cleanup runs in
+the fixture even on failure — these tests create parents *and* children.
+
 ## Order of work
 
 1. **Scaffold** — if `automation/` doesn't exist, create the full layout

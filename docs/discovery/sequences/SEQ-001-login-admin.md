@@ -6,16 +6,21 @@ flow: [1]
 entry_url: /
 roles: [admin (tenant a)]
 screens: [home-anonymous, login, home-signed-in, entities-menu]
-events: []
+events: [EVT-001, EVT-002, EVT-003, EVT-004]
 validations: []
 walk: automation/discovery/walks/login-admin.walk.ts
-status: draft
+status: approved
+approved_by: rubaiat.ferdoes@leads-bd.com
+approved_on: 2026-10-19
 discovered: 2026-10-19
 ---
 
 # SEQ-001: Sign in as admin
 
-> Observation only. Nothing here is an expected result until approved.
+> Status: APPROVED - rubaiat.ferdoes@leads-bd.com, 2026-10-19 (trial run).
+> These observations are now the expected results for test design.
+> Approval confirms they are an accurate record of what the product does;
+> it does not declare the flagged findings below to be correct behaviour.
 
 ## Goal
 A visitor opens the application, signs in with the `qa-tenant-a` account
@@ -28,11 +33,11 @@ A visitor opens the application, signs in with the `qa-tenant-a` account
 ## Path
 | # | Screen | Action | What happened (observed) | Event | Screenshot |
 |---|---|---|---|---|---|
-| 1 | Home (anonymous) | Open `/` | Page "Welcome, Java Hipster! (Jhipster Sample Application)". Navigation shows only **Home** and **Account**. A green box prints the shipped logins in clear text: `Administrator (login="admin" and password="admin") - User (login="user" and password="user")`. In the background `GET /api/account` returned **401**, which the browser console shows as an error. | | [png](../screens/SEQ-001-01-home-anonymous.png) |
-| 2 | Sign in | Open `/login` | Heading "Sign in". Three fields: `Username` (`#username`, `data-cy="username"`), `Password` (`#password`, `data-cy="password"`), `Remember me` checkbox (unticked). Buttons/links: **Sign in** (`data-cy="submit"`), "Did you forget your password?", "Register a new account". Neither text field carries `required`, `maxlength`, `minlength` or `pattern` in the DOM; both carry the Angular class `ng-invalid`. `GET /api/account` returned **401** twice more. | | [png](../screens/SEQ-001-02-login-empty.png) |
-| 3 | Sign in (filled) | Type the tenant-a username and password, do not submit | Both fields hold a value, the password renders masked. No request was sent while typing. The **Sign in** button is enabled. | | [png](../screens/SEQ-001-03-login-filled.png) |
-| 4 | Home (signed in) | Click **Sign in** | `POST /api/authenticate` → **200** in 74 ms with body `{"username":"admin","password":"<masked>","rememberMe":false}`. The app moved to `/` and showed "You are logged in as user \"admin\"." Navigation now also offers **Entities** (`#entity-menu`) and **Administration** (`#admin-menu`). `GET /api/account` → **200** returning `authorities: ["ROLE_USER","ROLE_ADMIN"]`, `email: admin@localhost`, `login: admin`. The JWT was written to **sessionStorage** (not localStorage, because "Remember me" was unticked). | | [png](../screens/SEQ-001-04-home-signed-in.png) |
-| 5 | Entities menu | Click **Entities** | Drop-down with exactly three items: **Bank Account** (`/bank-account`), **Label** (`/label`), **Operation** (`/operation`). No request was sent. | | [png](../screens/SEQ-001-05-entities-menu-open.png) |
+| 1 | Home (anonymous) | Open `/` | Page "Welcome, Java Hipster! (Jhipster Sample Application)". Navigation shows only **Home** and **Account**. A green box prints the shipped logins in clear text: `Administrator (login="admin" and password="admin") - User (login="user" and password="user")`. In the background `GET /api/account` returned **401**, which the browser console shows as an error. | EVT-001 | [png](../screens/SEQ-001-01-home-anonymous.png) |
+| 2 | Sign in | Open `/login` | Heading "Sign in". Three fields: `Username` (`#username`, `data-cy="username"`), `Password` (`#password`, `data-cy="password"`), `Remember me` checkbox (unticked). Buttons/links: **Sign in** (`data-cy="submit"`), "Did you forget your password?", "Register a new account". Neither text field carries `required`, `maxlength`, `minlength` or `pattern` in the DOM; both carry the Angular class `ng-invalid`. `GET /api/account` returned **401** twice more. | EVT-002 | [png](../screens/SEQ-001-02-login-empty.png) |
+| 3 | Sign in (filled) | Type the tenant-a username and password, do not submit | Both fields hold a value, the password renders masked. No request was sent while typing. The **Sign in** button is enabled. | - (no call) | [png](../screens/SEQ-001-03-login-filled.png) |
+| 4 | Home (signed in) | Click **Sign in** | `POST /api/authenticate` → **200** in 74 ms with body `{"username":"admin","password":"<masked>","rememberMe":false}`. The app moved to `/` and showed "You are logged in as user \"admin\"." Navigation now also offers **Entities** (`#entity-menu`) and **Administration** (`#admin-menu`). `GET /api/account` → **200** returning `authorities: ["ROLE_USER","ROLE_ADMIN"]`, `email: admin@localhost`, `login: admin`. The JWT was written to **sessionStorage** (not localStorage, because "Remember me" was unticked). | EVT-003 | [png](../screens/SEQ-001-04-home-signed-in.png) |
+| 5 | Entities menu | Click **Entities** | Drop-down with exactly three items: **Bank Account** (`/bank-account`), **Label** (`/label`), **Operation** (`/operation`). No request was sent. | EVT-004 | [png](../screens/SEQ-001-05-entities-menu-open.png) |
 
 ## Seen, not explored
 | Screen / control | Where | Why not explored |

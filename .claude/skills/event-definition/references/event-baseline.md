@@ -123,7 +123,12 @@ a screen that refreshes itself is flaky by construction.
 
 ## 4. Storage effects
 
-### When a read-only database user exists
+Which half applies is set by `DB_ACCESS` in `.env`. With `readonly`, the
+row-level checks below run and the substitutes are cheap extras. With
+`none`, the substitutes ARE the storage method — and the first table
+here is simply unavailable.
+
+### When a read-only database user exists (`DB_ACCESS=readonly`)
 
 | Item | Mark | A well-built app… |
 |---|---|---|
@@ -133,10 +138,12 @@ a screen that refreshes itself is flaky by construction.
 | **Soft or hard delete** | Decision | One or the other, stated — not discovered by accident |
 | **No write on GET** | Rule | A read fires no INSERT or UPDATE |
 
-### When there is no database access — the substitutes
+### When there is no database access (`DB_ACCESS=none`) — the substitutes
 
-Most of the above has an observable proxy through the API alone. Use
-these when Tier 2 is `PENDING`, and record `source: black-box probe`.
+Most of the above has an observable proxy through the API alone. These
+are generated as test cases and tests tagged `@persistence` (see
+`test-case-designer` and `api-test-generator`), and each result is
+recorded with `source: black-box probe`.
 
 | Question | Probe |
 |---|---|

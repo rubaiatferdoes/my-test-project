@@ -10,7 +10,10 @@ Add database checks for: $ARGUMENTS
 
 If nothing was given, cover all approved test cases with a DB layer.
 
-Needs only the read-only database settings in .env (DB_TYPE, DB_URL,
+First check DB_ACCESS in .env. If it is `none`, stop and say step 8 is OUT
+by design (the @persistence probes cover storage) - that is not a failure.
+
+Otherwise it needs only the read-only database settings in .env (DB_TYPE, DB_URL,
 DB_READONLY_USER, DB_READONLY_PASSWORD) — if any is missing, stop and
 say what to add. The schema is read from information_schema; a schema
 export in docs/requirements/db/ is optional.

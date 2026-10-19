@@ -20,6 +20,7 @@ it correctly. Never INSERT, UPDATE, DELETE, or change the schema.
 
 | Situation | What to do |
 |---|---|
+| `DB_ACCESS=none` (or unset with `DB_TYPE` empty) | **Stop cleanly — this is a supported mode, not an error.** Report: "Database access was not granted; step 8 is OUT. Storage is covered by the `@persistence` probes." List the cheaper asks from `docs/requirements/db/README.md` (schema export, app SQL log, repo read access) and write nothing. |
 | `DB_TYPE`, `DB_URL`, or the read-only credentials empty | Stop. Tell the user what's missing (see `docs/requirements/db/README.md`). |
 | Credentials set, export present | Continue. Read the **live** schema from `information_schema` and compare it with the **intended** schema exported to `docs/requirements/db/`. A difference between the two is a finding — report it, never silently prefer one. |
 | Credentials set, no export yet | Continue on `information_schema` alone. Say in `schema-check.md` that the intended schema was unavailable, so only validation rules were compared. |

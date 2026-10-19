@@ -54,7 +54,7 @@ priority and a one-line reason:
 
 | Flow step | UI | API | Docs | DB | Priority | Why |
 |---|---|---|---|---|---|---|
-| 1. Create endpoint | In | In | — | Later (DB pending) | P0 | Nothing works if this fails |
+| 1. Create endpoint | In | In | — | Later (DB pending) *or* Out (no access) | P0 | Nothing works if this fails |
 | 3. Generate API key | In | In | — | Later | P0 | Show-once is unrecoverable if wrong |
 
 Use the evidence to decide depth, not a feeling:
@@ -64,7 +64,12 @@ Use the evidence to decide depth, not a feeling:
   case — the UI one would pass while the hole stays open.
 - A `background` event (polling) means condition-based waits, and is a
   flakiness risk worth calling out.
-- An event whose DB mapping is `PENDING` gets its DB cell `Later`.
+- DB cell by mode (`DB_ACCESS` in `.env`): `readonly` + mapping still
+  `PENDING` -> `Later` (it is coming). `none` -> **`Out (no access)`** with
+  the reason. Never `Later` in `none` mode: that word promises a layer
+  nobody will build, and quietly lets the gap look temporary.
+- In `none` mode add a `@persistence` column or note: which events get a
+  round-trip, cascade, delete-and-recreate, exposure or idempotency probe.
 - A sequence with a dead end gets a case that proves the dead end, so a
   fix is detectable.
 
