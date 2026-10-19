@@ -13,6 +13,9 @@ and boundary test cases, and the data factory's rules.
 dumps in `automation/discovery/artifacts/`.
 **Output:** `docs/discovery/validations/<module>.validations.md`
 (template: [templates/validations-template.md](templates/validations-template.md)).
+Every result is also compared against the standard validation baseline
+([references/validation-baseline.md](references/validation-baseline.md)) —
+a gap is a finding, never an expected result.
 
 **You have to submit bad data to learn a rule.** That is allowed
 (CLAUDE.md section 4) under `qa-` naming, on the test environment, with
@@ -134,7 +137,32 @@ name, and never run it against a parent you did not create.
 If each creation is slow (over ~2 s) the probe could take minutes — stop
 and ask before continuing, rather than hammering a shared environment.
 
-## 6. Write it down
+## 6. Compare against the standard baseline — the oracle for "ought"
+
+Everything so far says what the app **does**. The standard validation
+baseline ([references/validation-baseline.md](references/validation-baseline.md))
+says what a well-built form **should** do. With all evidence on the
+table — rules, enforcement verdicts, cross-field, quotas — walk the
+baseline items that apply to each field and collection you probed:
+
+| Situation | What to do |
+|---|---|
+| The app lacks a baseline rule | A **gap** → a finding (`BUG-` candidate) or a `Q-`. Never a `VAL-` |
+| The app is stricter than the baseline | Record the row as `Stricter`. Not a bug |
+| The baseline looks wrong for this screen | A `Q-` about the baseline |
+
+Fill the template's `## Standard comparison` table: one row per
+applicable baseline item, `Match`es included — an item with no row must
+appear as `N/A — <reason>`. Every `Gap` repeats in `## Findings` or
+`## Questions` below it. The baseline's probe matrix (its section 4)
+tells you which of the eight probes apply per field type; a probe you
+skipped on purpose is recorded as skipped in the Probe log.
+
+The baseline never becomes truth by itself. Only your approval at the
+discovery gate — or a requirement document — turns a gap into an
+expected result.
+
+## 7. Write it down
 
 One row per rule, not per field — a field with three rules gets three
 `VAL-` IDs, because each becomes its own test case or data row.
@@ -150,7 +178,7 @@ the UI generator needs it to know when to assert.
 An unknown limit is written `UNKNOWN — probe inconclusive` with a `Q-`,
 never a guessed number.
 
-## 7. Clean up
+## 8. Clean up
 
 Probing creates records — especially the uniqueness probe. Delete every
 `qa-` record you made, report anything left behind, and never touch a
@@ -163,6 +191,8 @@ record that is not yours.
 - Never record a rule you did not trigger. "Probably 50 characters" is a
   question, not a validation.
 - A 5xx from any probe is a bug report, not a validation rule.
+- A baseline gap is a finding or a `Q-`, never a `VAL-` row and never an
+  expected result — only a probe you ran creates a rule.
 - Finish with: rules found per field, how many are `client`-only or
-  `none` (list them — these are findings), unresolved limits, and
-  "Ready for review."
+  `none` (list them — these are findings), unresolved limits, baseline
+  gaps with their `Q-` IDs, and "Ready for review."

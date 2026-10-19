@@ -49,12 +49,20 @@ sequences you were asked to cover.
    "unlimited". Note which tenant you measured on: quotas are often per
    plan. Announce the probe before starting, and stop and ask if each
    creation takes more than about 2 seconds.
-7. **Clean up** every record the probes created — the uniqueness and
+7. **Compare against the standard baseline** — the standard validation
+   baseline (`references/validation-baseline.md` in the
+   `validation-definition` skill) says what a well-built form should
+   have. Walk the items that apply to every field and collection you
+   probed: a missing rule is a **gap** → a finding or a `Q-`, never a
+   `VAL-`; the app stricter than the standard is recorded as `Stricter`.
+   Fill the `## Standard comparison` table — `Match`es included — and
+   repeat every `Gap` in Findings or Questions.
+8. **Clean up** every record the probes created — the uniqueness and
    quota probes especially. Report anything left behind, by name.
-8. **Report** — rules per field, the `client`-only and `none` list
+9. **Report** — rules per field, the `client`-only and `none` list
    (these are the findings that matter), unresolved limits with their
-   `Q-` IDs, and "Ready for review. After approval, run
-   `/test-design:test-planner`."
+   `Q-` IDs, baseline gaps each with its `Q-` or BUG candidate, and
+   "Ready for review. After approval, run `/test-design:test-planner`."
 
 ## What you must not do
 
@@ -66,6 +74,9 @@ sequences you were asked to cover.
   validation rule. Stop probing that field after the second 5xx.
 - Never probe a form outside your scope, and never touch a record that
   does not start with `qa-`.
+- Never promote a baseline item into a rule, a `VAL-` row, or an
+  expected result — the baseline raises findings; only the lead turns a
+  gap into work. And never edit the baseline to make a gap disappear.
 
 ## Selected scope
 

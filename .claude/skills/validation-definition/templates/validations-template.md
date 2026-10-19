@@ -10,7 +10,9 @@ discovered: YYYY-MM-DD
 # Validations — API keys `[keys]`
 
 > Observation only. A rule recorded here is what the application did when
-> we probed it — not what it ought to do.
+> we probed it — not what it ought to do. The Standard comparison section
+> is the one exception: the baseline says what a well-built form ought to
+> do, and a gap there is a finding, never an expected result.
 
 ## Fields covered
 | Screen | Field | Type | Declared in DOM | Rules found |
@@ -50,6 +52,21 @@ quotas are often per plan, so this may not hold for other tenants.
 | Key name | injection | `' OR '1'='1` | 201, stored as plain text, rendered escaped ✅ |
 | keys/endpoint | quota | created 1..6 via API | 6th rejected, 400, VAL-012 message |
 | endpoints/tenant | quota | created 1..25 via API (cap) | none rejected — UNKNOWN, Q-0xx |
+
+## Standard comparison
+One row per applicable item from the standard validation baseline
+(`references/validation-baseline.md` in this skill) — `Match`es included;
+an item with no row must appear as `N/A — <reason>`. Every `Gap` repeats
+in Findings or Questions below. Items are cited by name, never by number.
+
+| Baseline item | Applies to (screen · field / collection) | What we found | Verdict | Raised as |
+|---|---|---|---|---|
+| **Minimum length** | generate-key-dialog · Key name | Rejected at 2 characters — `Key name must be at least 3 characters.` | Match | — |
+| **Maximum length** | generate-key-dialog · Key name | API accepted 256 characters (VAL-008 is client-only) | Gap | BUG-0xx (candidate) |
+| **Shown once** | generate-key-dialog · generated key | Full key still in the DOM after reload | Gap | Q-0xx |
+| **Case sensitivity** | generate-key-dialog · Key name | `Key` and `key` both exist — scope unstated | UNKNOWN — Q-0xx | Q-0xx |
+
+Verdicts: `Match` · `Gap` · `Stricter` · `N/A — <reason>` · `UNKNOWN — Q-0xx`
 
 ## Findings
 | # | What we saw | Why it matters | Raised as |

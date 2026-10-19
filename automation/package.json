@@ -1,0 +1,19 @@
+{
+  "name": "qa-trial-automation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "QA framework trial - Playwright automation and discovery harness for the JHipster sample app",
+  "scripts": {
+    "discover": "tsx discovery/explore.ts",
+    "test": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:db": "playwright test --project=db",
+    "test:ui": "playwright test --project=ui",
+    "test:e2e": "playwright test --project=e2e",
+    "test:headed": "playwright test --headed",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "report": "playwright show-report reports/html"
+  }
+}
