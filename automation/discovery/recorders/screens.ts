@@ -10,6 +10,76 @@ interface RawDump {
 }
 
 /**
+ * The page-side reader, kept as a string so the TypeScript loader cannot inject
+ * build helpers (__name) into the browser context.
+ */
+const READ_SCREEN = `(() => {
+  const text = (el) => (el.textContent || '').replace(/[ \\t\\n\\r\\f\\v]+/g, ' ').trim();
+
+  const labelFor = (el) => {
+    const id = el.getAttribute('id');
+    if (id) {
+      const label = document.querySelector('label[for="' + CSS.escape(id) + '"]');
+      if (label) return text(label);
+    }
+    const wrapper = el.closest('label');
+    return wrapper ? text(wrapper) : null;
+  };
+
+  const visible = (el) => {
+    const rect = el.getBoundingClientRect();
+    const style = window.getComputedStyle(el);
+    return style.display !== 'none' && style.visibility !== 'hidden' && (rect.width > 0 || rect.height > 0);
+  };
+
+  const fields = Array.from(document.querySelectorAll('input, select, textarea'))
+    .filter(visible)
+    .map((el) => ({
+      tag: el.tagName.toLowerCase(),
+      type: el.getAttribute('type'),
+      name: el.getAttribute('name'),
+      id: el.getAttribute('id'),
+      testId: el.getAttribute('data-cy') || el.getAttribute('data-testid'),
+      label: labelFor(el),
+      placeholder: el.getAttribute('placeholder'),
+      required: el.hasAttribute('required') || el.getAttribute('aria-required') === 'true',
+      maxLength: el.getAttribute('maxlength'),
+      minLength: el.getAttribute('minlength'),
+      min: el.getAttribute('min'),
+      max: el.getAttribute('max'),
+      pattern: el.getAttribute('pattern'),
+      value: el.getAttribute('type') === 'password' ? '***' : (el.value === undefined ? null : el.value),
+      disabled: el.disabled === true,
+      options: el.tagName.toLowerCase() === 'select' ? Array.from(el.options).map((o) => o.text.trim()) : [],
+      classes: el.className || ''
+    }));
+
+  const controls = Array.from(document.querySelectorAll('button, a[href], [role="button"], input[type="submit"]'))
+    .filter(visible)
+    .map((el) => ({
+      role: el.tagName.toLowerCase() === 'a' ? 'link' : 'button',
+      text: text(el) || el.getAttribute('aria-label') || el.getAttribute('value') || '',
+      id: el.getAttribute('id'),
+      testId: el.getAttribute('data-cy') || el.getAttribute('data-testid'),
+      href: el.getAttribute('href'),
+      disabled: el.disabled === true
+    }))
+    .filter((c) => c.text.length > 0 || c.testId !== null);
+
+  const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4'))
+    .filter(visible)
+    .map(text)
+    .filter((t) => t.length > 0);
+
+  const alerts = Array.from(document.querySelectorAll('.alert, [role="alert"], .invalid-feedback, .text-danger, .error, .form-text'))
+    .filter(visible)
+    .map(text)
+    .filter((t) => t.length > 0);
+
+  return { headings, fields, controls, alerts };
+})()`;
+
+/**
  * Reads one screen the way the skill asks: headings, every form field with its
  * DOM attributes, every button/link, and any alert text on the page.
  */
@@ -20,78 +90,7 @@ export class ScreenRecorder {
     const fileName = `${String(step).padStart(2, '0')}-${screen}.png`;
     await this.page.screenshot({ path: path.join(this.screensDir, fileName), fullPage: true });
 
-    const raw = await this.page.evaluate<RawDump>(() => {
-      const text = (element: Element): string => (element.textContent ?? '').replace(/\s+/g, ' ').trim();
-
-      const labelFor = (element: Element): string | null => {
-        const id = element.getAttribute('id');
-        if (id) {
-          const label = document.querySelector(`label[for="${CSS.escape(id)}"]`);
-          if (label) return text(label);
-        }
-        const wrapper = element.closest('label');
-        return wrapper ? text(wrapper) : null;
-      };
-
-      const visible = (element: Element): boolean => {
-        const rect = element.getBoundingClientRect();
-        const style = window.getComputedStyle(element);
-        return style.display !== 'none' && style.visibility !== 'hidden' && (rect.width > 0 || rect.height > 0);
-      };
-
-      const fields = Array.from(document.querySelectorAll('input, select, textarea'))
-        .filter(visible)
-        .map((element) => {
-          const input = element as HTMLInputElement;
-          return {
-            tag: element.tagName.toLowerCase(),
-            type: element.getAttribute('type'),
-            name: element.getAttribute('name'),
-            id: element.getAttribute('id'),
-            testId: element.getAttribute('data-cy') ?? element.getAttribute('data-testid'),
-            label: labelFor(element),
-            placeholder: element.getAttribute('placeholder'),
-            required: element.hasAttribute('required') || element.getAttribute('aria-required') === 'true',
-            maxLength: element.getAttribute('maxlength'),
-            minLength: element.getAttribute('minlength'),
-            min: element.getAttribute('min'),
-            max: element.getAttribute('max'),
-            pattern: element.getAttribute('pattern'),
-            value: input.type === 'password' ? '***' : input.value ?? null,
-            disabled: input.disabled === true,
-            options:
-              element.tagName.toLowerCase() === 'select'
-                ? Array.from((element as HTMLSelectElement).options).map((o) => o.text.trim())
-                : [],
-          };
-        });
-
-      const controls = Array.from(document.querySelectorAll('button, a[href], [role="button"], input[type="submit"]'))
-        .filter(visible)
-        .map((element) => ({
-          role: element.tagName.toLowerCase() === 'a' ? 'link' : 'button',
-          text: text(element) || element.getAttribute('aria-label') || element.getAttribute('value') || '',
-          id: element.getAttribute('id'),
-          testId: element.getAttribute('data-cy') ?? element.getAttribute('data-testid'),
-          href: element.getAttribute('href'),
-          disabled: (element as HTMLButtonElement).disabled === true,
-        }))
-        .filter((c) => c.text.length > 0 || c.testId !== null);
-
-      const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4'))
-        .filter(visible)
-        .map(text)
-        .filter((t) => t.length > 0);
-
-      const alerts = Array.from(
-        document.querySelectorAll('.alert, [role="alert"], .invalid-feedback, .text-danger, .error, .ng-invalid ~ .invalid-feedback'),
-      )
-        .filter(visible)
-        .map(text)
-        .filter((t) => t.length > 0);
-
-      return { headings, fields, controls, alerts };
-    });
+    const raw = (await this.page.evaluate(READ_SCREEN)) as RawDump;
 
     return {
       step,

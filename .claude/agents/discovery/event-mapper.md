@@ -44,11 +44,22 @@ filled in on the sequence files you mapped.
    calls, 4xx/5xx behind a success screen, any 5xx at all, ids or keys in
    query strings, missing auth headers, response fields the screen never
    shows.
-6. **Write back** the `EVT-` IDs into each sequence file's Event column
+6. **Compare against the standard baseline** — the standard event
+   baseline (`references/event-baseline.md` in the `event-definition`
+   skill) says what a well-built action should do. Walk the items that
+   apply to each event you mapped. The baseline marks each one **Rule**
+   or **Decision**: a missing Rule is a finding (`BUG-` candidate when
+   data or security is at risk); a missing Decision is a `Q-`, because
+   someone chose and nobody wrote it down. Never raise a Decision as a
+   bug — optimistic UI, client-side sorting and last-write-wins are
+   design choices. Fill the `## Standard comparison` table, `Match`es
+   included, and repeat every `Gap` in Findings or Questions.
+7. **Write back** the `EVT-` IDs into each sequence file's Event column
    and the `events:` front matter — that is the only change you may make
    to a sequence file.
-7. **Report** — events per type, API routes discovered, how many have a
-   DB mapping versus `PENDING`, findings, and
+8. **Report** — events per type, API routes discovered, how many have a
+   DB mapping versus `PENDING`, baseline gaps each with its `Q-` or
+   BUG candidate, findings, and
    "Ready for review. After approval, run `/test-design:test-planner`."
 
 ## Why precision matters here

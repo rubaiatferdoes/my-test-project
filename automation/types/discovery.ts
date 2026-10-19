@@ -37,9 +37,12 @@ export interface NetworkEntry {
   readonly requestBody: string | null;
   readonly status: number | null;
   readonly statusText: string;
-  readonly responseBody: string | null;
+  responseBody: string | null;
+  /** Set when the body could not be read (e.g. the SPA aborted the read). */
+  bodyUnavailable?: string;
   readonly durationMs: number | null;
-  readonly failure: string | null;
+  /** Mutable: a late abort can attach to an entry whose response was already recorded. */
+  failure: string | null;
 }
 
 export interface FieldDump {

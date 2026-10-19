@@ -14,6 +14,9 @@ recordings in `automation/discovery/artifacts/`.
 **Output:** `docs/discovery/events/<module>.events.md`, one file per
 module (template:
 [templates/events-template.md](templates/events-template.md)).
+Every event is also compared against the standard event baseline
+([references/event-baseline.md](references/event-baseline.md)) — a gap
+is a finding or a question, never an expected result.
 
 ## 1. Two tiers — know which one you are writing
 
@@ -178,7 +181,33 @@ default.
 | The screen works but the call was never made (cached) | The test needs a different wait |
 | A response field never shown on screen | Possible over-exposure of data |
 
-## 6. How the automation uses this
+## 6. Compare against the standard baseline
+
+Everything so far says what the app **does**. The standard event
+baseline ([references/event-baseline.md](references/event-baseline.md))
+says what a well-built action **should** do. With all the evidence on
+the table — calls, order, timing, storage effect — walk the baseline
+items that apply to each event you mapped.
+
+The baseline marks every item **Rule** or **Decision**, and the
+difference decides what you raise:
+
+| Situation | What to do |
+|---|---|
+| A **Rule** item is missing | A finding; a `BUG-` candidate when data or security is at risk |
+| A **Decision** item is missing | A `Q-` — someone must have chosen, and nobody wrote it down |
+| The app does more than the baseline | Record as `Stricter`. Never a bug |
+| The baseline looks wrong here | A `Q-` about the baseline itself |
+
+Treating a Decision as a Rule is how a QA framework starts filing bugs
+against deliberate design. Optimistic UI, client-side sorting and
+last-write-wins are choices, not defects.
+
+Fill the `## Standard comparison` table in the module's event file,
+`Match`es included, and repeat every `Gap` under Findings or Questions.
+An item you did not check is `N/A — <reason>`, never a blank row.
+
+## 7. How the automation uses this
 
 Event definitions are what let the generators write tests that wait on
 the right thing instead of sleeping:

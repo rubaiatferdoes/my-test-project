@@ -43,25 +43,32 @@ async function main(): Promise<void> {
   console.log(`tenant ${walk.tenant} | login ${walk.login ?? 'session'} | artifacts ${outDir}\n`);
 
   const browser = await chromium.launch({ headless: !ENV.headed, slowMo: ENV.headed ? 150 : 0 });
-  const storageState = walk.login === 'session' ? await loadSession(browser, walk.tenant) : undefined;
+  const session = walk.login === 'session' ? await loadSession(browser, walk.tenant) : undefined;
+  if (session) console.log(`session reused | token stored in ${session.tokenStorage}`);
   const context: BrowserContext = await browser.newContext({
     baseURL: ENV.baseUrl,
-    storageState,
+    storageState: session?.statePath,
     viewport: { width: 1440, height: 900 },
     ignoreHTTPSErrors: true,
   });
 
   const blocked: string[] = [];
-  // CLAUDE.md section 5: never leave the test environment.
-  await context.route('**', async (route, request) => {
-    const host = new URL(request.url()).host;
-    if (!ENV.allowedHosts.includes(host)) {
+  // CLAUDE.md section 5: never leave the test environment. Only off-host URLs are
+  // intercepted - routing an allowed request would duplicate it in the recording.
+  await context.route(
+    (url) => !ENV.allowedHosts.includes(url.host),
+    async (route, request) => {
       blocked.push(`${request.method()} ${request.url()}`);
       await route.abort();
-      return;
-    }
-    await route.continue();
-  });
+    },
+  );
+
+  if (session && Object.keys(session.sessionStorage).length > 0) {
+    // storageState does not carry sessionStorage; replay it before the first script runs.
+    await context.addInitScript({
+      content: `(() => { const d = ${JSON.stringify(session.sessionStorage)}; for (const k of Object.keys(d)) sessionStorage.setItem(k, d[k]); })()`,
+    });
+  }
 
   const page: Page = await context.newPage();
   const network = new NetworkRecorder(page, ENV.baseUrl);
@@ -118,7 +125,11 @@ async function main(): Promise<void> {
   fs.writeFileSync(path.join(outDir, 'console.json'), JSON.stringify(consoleEntries, null, 2));
   fs.writeFileSync(
     path.join(outDir, 'walk.json'),
-    JSON.stringify({ id: walk.id, title: walk.title, tenant: walk.tenant, results, created, blocked }, null, 2),
+    JSON.stringify(
+      { id: walk.id, title: walk.title, tenant: walk.tenant, data: ctx.data, results, created, blocked },
+      null,
+      2,
+    ),
   );
 
   console.log(`\nconsole/page errors: ${consoleEntries.length}`);

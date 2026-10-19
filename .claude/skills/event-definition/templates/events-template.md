@@ -75,6 +75,27 @@ one event. Listed once here rather than guessed at per event.
 |---|---|---|
 | `audit_log` | Row count rises on most actions | No foreign key to our record; would need the app SQL log to attribute |
 
+## Standard comparison
+One row per applicable item from the standard event baseline
+(`references/event-baseline.md` in this skill) — `Match`es included; an
+item not checked must appear as `N/A — <reason>`. Every `Gap` repeats in
+Findings or Questions. Items are cited by name, never by number.
+
+The baseline marks each item **Rule** or **Decision**: a missing Rule is
+a finding, a missing Decision is a `Q-`. Never the other way round.
+
+| Baseline item | Mark | Applies to | What we found | Verdict | Raised as |
+|---|---|---|---|---|---|
+| **One write per submit** | Rule | EVT-012 generate key | Double-click guarded; one row either way | Match | — |
+| **Success means success** | Rule | EVT-012 | Toast appears before the POST resolves | Gap | BUG-0xx (candidate) |
+| **No secrets in URLs** | Rule | all events this module | No key or token in any path or query | Match | — |
+| **Optimistic UI** | Decision | EVT-012 | List updates before the server confirms; no rollback seen | Gap | Q-0xx |
+| **Stops on leave** | Rule | EVT-015 key-status poll | Polling continued after navigating away | Gap | BUG-0xx (candidate) |
+| **Create status** | Decision | EVT-012 | 201 with no `Location` header | Gap | Q-0xx |
+| **Concurrent edits** | Decision | — | Not reachable from this module's screens | N/A — no shared record | — |
+
+Verdicts: `Match` · `Gap` · `Stricter` · `N/A — <reason>` · `UNKNOWN — Q-0xx`
+
 ## Change log
 | CR | Date | Change |
 |---|---|---|
