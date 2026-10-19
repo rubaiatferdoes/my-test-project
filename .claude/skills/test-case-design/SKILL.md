@@ -56,18 +56,46 @@ Templates: [tc-template.md](templates/tc-template.md) ·
 
 ## Step 2 — Write the cases
 
-- One file per test case, from `tc-template.md`.
-- Title format: `<action> <condition> <expected outcome>`
-  e.g. "Create endpoint with duplicate name shows error".
-- Steps: a numbered table, one action per row, each with its own
-  expected result. No "etc.".
+- One file per test case, from `tc-template.md`: flat `Preconditions:` /
+  `Test data:` lines, a plain numbered `Steps:` list written the way a
+  manual tester would describe clicking through the app ("Click the
+  Entities menu, then Bank Account"), and **one** `Expected Result:` for
+  the whole case at the end. No "etc.".
+- Write steps and expected results **for a non-technical reader**: name
+  screens, buttons and menus the way they appear on screen, not their
+  selector (`data-cy="submit"`) or the API call behind them. Selectors,
+  payloads and exact status codes already live in the `SEQ-`/`EVT-`/
+  `VAL-` file this case links from `requirements:` — the automation
+  generator reads those directly, so the case file doesn't need to
+  repeat them. The one exception is an **API-only** case (nothing to
+  click): there the "step" IS the API call, so name the endpoint and
+  method in plain terms (e.g. "Call the sign-in API with this username
+  and password") and the expected status/message, since that's the only
+  concrete, checkable outcome available.
+- One `Expected Result:` per case, not one per step — a single sentence
+  or two describing the end state a tester can see (page reached,
+  message shown, row appearing in a list). For a **data-driven** case
+  (several input rows through the same steps), each row in the `Test
+  data` table gets its own `Expected` column instead — that row's
+  outcome is its one expected result.
 - Expected result: a concrete, checkable outcome — exact message,
   status code, or visible state. Never "works correctly". Copy messages
   and labels exactly as discovery recorded them; a paraphrased message
   becomes a failing assertion.
-- Every case links to at least one `SEQ-`, `VAL-`, `F-`, or `BR-` ID.
+- Every case links to at least one `SEQ-`, `VAL-`, `F-`, or `BR-` ID via
+  the `requirements:` field — this is what lets `module:`/`P0`/`layer:`
+  selectors (CLAUDE.md §8) and automation `@tags` (`ts-pom-standards`)
+  work. Never drop these fields to shorten a case.
+- No "Actual Result" or "Pass/Fail" field in the case file — that's a run
+  result, owned by `test-executor`/`quality-reporter` in `docs/reports/`,
+  not by the case design. The case's own `status:` (draft/approved/
+  deprecated) tracks the design's lifecycle, not an execution outcome.
+- Keep `Notes:` to what a human genuinely needs — an `ASSUMPTION —
+  verify (Q-xxx)` link, or a one-line pointer to why a value is what it
+  is. Not a restatement of the discovery finding; link its ID instead.
 - Data-driven cases list their input rows in the file's "Test data"
-  table; the data factory adds the DAT- IDs. Never real customer data.
+  table (delete the section if the case isn't data-driven); the data
+  factory adds the DAT- IDs. Never real customer data.
 
 ## Step 3 — Set priority
 

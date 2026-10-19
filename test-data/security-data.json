@@ -1,0 +1,90 @@
+[
+  {
+    "id": "DAT-035",
+    "field": "authorizationHeader",
+    "value": null,
+    "expected": "401, no account data in the response (Authorization header missing entirely)",
+    "rule": "auth-security#1",
+    "used_by": ["TC-005"]
+  },
+  {
+    "id": "DAT-036",
+    "field": "authorizationHeader",
+    "value": "Bearer ",
+    "expected": "401, no account data (empty token)",
+    "rule": "auth-security#1",
+    "used_by": ["TC-005"]
+  },
+  {
+    "id": "DAT-037",
+    "field": "authorizationHeader",
+    "value": "Bearer qa.fake.notarealtoken",
+    "expected": "401, no account data (random string, right shape)",
+    "rule": "auth-security#1",
+    "used_by": ["TC-005"]
+  },
+  {
+    "id": "DAT-038",
+    "field": "authorizationHeader",
+    "value": "Bearer eyJhbGciOiJIUzI1NiJ9.bm90LWEtcmVhbC1wYXlsb2Fk",
+    "expected": "401, no account data (malformed — two segments instead of three)",
+    "rule": "auth-security#1",
+    "used_by": ["TC-005"]
+  },
+  {
+    "id": "DAT-039",
+    "field": "authorizationHeader",
+    "value": "RUNTIME — built by the fixture: a real tenant-a token, re-used after its lifetime has passed. Never a literal value stored here; no working token is ever committed.",
+    "expected": "401, no account data",
+    "rule": "auth-security#1",
+    "used_by": ["TC-005"]
+  },
+  {
+    "id": "DAT-040",
+    "field": "authorizationHeader",
+    "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxYS1mYWtlIn0.d3JvbmdrZXlzaWduYXR1cmU",
+    "expected": "401, no account data (fake token shaped like a JWT, signed with a different/fake key — not a working secret)",
+    "rule": "auth-security#1",
+    "used_by": ["TC-005"]
+  },
+  {
+    "id": "DAT-041",
+    "field": "tokenLocation",
+    "value": "RUNTIME — built by the fixture: a valid tenant-a token placed in the URL's ?access_token= query string instead of the Authorization header. Never a literal value stored here.",
+    "expected": "401, no account data",
+    "rule": "auth-security#1",
+    "used_by": ["TC-005"]
+  },
+  {
+    "id": "DAT-042",
+    "field": "pageText",
+    "value": "admin/admin and user/user — the two demo logins the sample app ships with, not secrets this project generates",
+    "expected": "ASSUMPTION — verify (Q-001): target is that neither password appears in plain text on the anonymous home page. Today both do — that is the known gap this case records.",
+    "rule": "Q-001",
+    "used_by": ["TC-016"]
+  },
+  {
+    "id": "DAT-043",
+    "field": "crossTenantRead",
+    "value": "tenant-b session calls GET /api/bank-accounts",
+    "expected": "current behaviour, not endorsed: includes accounts tenant B doesn't own — no owner filter (API1 Broken Object Level Authorization; Q-006)",
+    "rule": "EVT-006",
+    "used_by": ["TC-014"]
+  },
+  {
+    "id": "DAT-044",
+    "field": "crossTenantRead",
+    "value": "tenant-b session calls GET /api/users",
+    "expected": "current behaviour, not endorsed: returns the full user list, including tenant-a's details (Q-009)",
+    "rule": "EVT-006",
+    "used_by": ["TC-014"]
+  },
+  {
+    "id": "DAT-045",
+    "field": "user",
+    "value": { "id": 2, "login": "user" },
+    "expected": "current behaviour, not endorsed: 201 — tenant A's create succeeds while the new account is owned by tenant B (OWASP API3 Broken Object Property Level Authorization; Finding 5, Q-007)",
+    "rule": "EVT-007",
+    "used_by": ["TC-014"]
+  }
+]

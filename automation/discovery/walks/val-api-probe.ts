@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { ENV, tenantOf } from '../../config/env.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const outDir = path.resolve(here, 'artifacts', 'val-api-probe');
+const outDir = path.resolve(here, '../artifacts/val-api-probe');
 
 interface ProbeResult {
   probe: string;

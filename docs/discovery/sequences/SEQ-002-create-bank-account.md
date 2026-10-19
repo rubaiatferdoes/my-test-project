@@ -7,7 +7,7 @@ entry_url: /bank-account
 roles: [admin (tenant a)]
 screens: [bank-account-list, bank-account-form, bank-account-detail]
 events: [EVT-005, EVT-006, EVT-007, EVT-008]
-validations: []
+validations: [VAL-001, VAL-002, VAL-003, VAL-004, VAL-005, VAL-006, VAL-007, VAL-008, VAL-009]
 walk: automation/discovery/walks/create-bank-account.walk.ts
 status: approved
 approved_by: rubaiat.ferdoes@leads-bd.com
@@ -34,13 +34,13 @@ name and a balance, and sees it in the list.
 ## Path
 | # | Screen | Action | What happened (observed) | Event | Screenshot |
 |---|---|---|---|---|---|
-| 1 | Bank account list | Open `/bank-account` (reached in the UI through **Entities → Bank Account**) | Heading "Bank Accounts" with **Refresh list** and **Create a new Bank Account** (`data-cy="entityCreateButton"`). A table of 32 rows, columns ID / Name / Balance and per-row **View**, **Edit**, **Delete**. `GET /api/bank-accounts?eagerload=true&sort=id,asc` → **200** in 14 ms. Every row in the response carries `"user": null` and `"operations": null`. The whole table is rendered at once - no paging control, no search box. | EVT-005 | [png](../screens/SEQ-002-01-bank-account-list-before.png) |
-| 2 | Bank account form (empty) | Click **Create a new Bank Account** | URL `/bank-account/new`, heading "Create or edit a Bank Account". Fields: `Name` (text, `#field_name`, `data-cy="name"`), `Balance` (number, `#field_balance`, `data-cy="balance"`), `User` (select, `#field_user`, options `""`, `admin`, `user`, pre-selected `""`). **Save** (`data-cy="entityCreateSaveButton"`) is **disabled**; **Cancel** is enabled. Name and Balance show a red bar on the left edge; there is no asterisk, no `required` attribute and no message saying what is missing. Opening the form fired `GET /api/users` → **200**, so the form downloads the full user list. | EVT-006 | [png](../screens/SEQ-002-02-bank-account-form-empty.png) |
-| 3 | Bank account form (filled) | Type `qa-seq002-mveut2zp-02u8` into Name and `123.45` into Balance; leave **User** untouched | Both values are shown. **Save** became enabled with the User select still empty, so User is optional. No request was sent while typing. | - (no call) | [png](../screens/SEQ-002-03-bank-account-form-filled.png) |
-| 4 | Bank account list (after save) | Click **Save** | `POST /api/bank-accounts` → **201** in 16 ms. Request body: `{"id":null,"name":"qa-seq002-mveut2zp-02u8","balance":123.45,"user":null}`. The app returned to `/bank-account` and showed a green banner: **"A new Bank Account is created with identifier 1003"**. The list reloaded with `GET /api/bank-accounts?eagerload=true&sort=id,asc` → **200**. | EVT-007 | [png](../screens/SEQ-002-04-bank-account-list-after-save.png) |
-| 5 | Bank account list (new row) | Read the new row | Last row reads `1003` · `qa-seq002-mveut2zp-02u8` · `123.45` · View Edit Delete. Row count went from 32 to **33**. The new row is appended at the bottom (sort is `id,asc`). | - (no call) | [png](../screens/SEQ-002-05-bank-account-list-new-row.png) |
-| 6 | Bank account detail | Open `/bank-account/1003/view` | Heading "Bank Account". ID `1003`, Name `qa-seq002-mveut2zp-02u8`, Balance `123.45`, **User is blank**. Buttons **Back** and **Edit**. `GET /api/bank-accounts/1003` → **200** in 12 ms. | EVT-008 | [png](../screens/SEQ-002-06-bank-account-detail.png) |
-| 7 | (read-only DB trace, not a screen) | `SELECT id, name, balance, user_id FROM bank_account WHERE name = $1` | One row: `id 1003, name qa-seq002-mveut2zp-02u8, balance 123.45, user_id NULL`. The name and balance are stored as typed; **no owner is recorded**. | - (not a UI event; evidence for EVT-007) | — |
+| 1 | Bank account list | Open `/bank-account` (via Entities → Bank Account) | "Bank Accounts" heading, Refresh list, **Create a new Bank Account** (`data-cy="entityCreateButton"`). Table of 32 rows: ID/Name/Balance + View/Edit/Delete. `GET /api/bank-accounts?eagerload=true&sort=id,asc` → **200** (14 ms); every row carries `"user":null`, `"operations":null`. No paging, no search. | EVT-005 | [png](../screens/SEQ-002-01-bank-account-list-before.png) |
+| 2 | Bank account form (empty) | Click **Create a new Bank Account** | URL `/bank-account/new`. `Name` (`#field_name`,`data-cy="name"`), `Balance` (`#field_balance`,`data-cy="balance"`), `User` (select `#field_user`, options `""`/`admin`/`user`, pre-selected `""`). **Save** (`data-cy="entityCreateSaveButton"`) disabled; Cancel enabled. Name/Balance show a red left bar, no asterisk, no `required`, no message. Opening the form fires `GET /api/users` → **200** — full user list downloaded. | EVT-006 | [png](../screens/SEQ-002-02-bank-account-form-empty.png) |
+| 3 | Bank account form (filled) | Type `qa-seq002-mveut2zp-02u8` / `123.45`, leave User untouched | Both shown; Save enabled with User still empty — User is optional. No request while typing. | — (no call) | [png](../screens/SEQ-002-03-bank-account-form-filled.png) |
+| 4 | Bank account list (after save) | Click **Save** | `POST /api/bank-accounts` → **201** (16 ms), body `{"id":null,"name":"qa-seq002-mveut2zp-02u8","balance":123.45,"user":null}`. Returns to `/bank-account`, banner "A new Bank Account is created with identifier 1003". List reloads via `GET /api/bank-accounts?eagerload=true&sort=id,asc` → 200. | EVT-007 | [png](../screens/SEQ-002-04-bank-account-list-after-save.png) |
+| 5 | Bank account list (new row) | Read the new row | `1003 · qa-seq002-mveut2zp-02u8 · 123.45`. Row count 32→**33**, appended at the bottom (`sort=id,asc`). | — (no call) | [png](../screens/SEQ-002-05-bank-account-list-new-row.png) |
+| 6 | Bank account detail | Open `/bank-account/1003/view` | ID `1003`, Name `qa-seq002-mveut2zp-02u8`, Balance `123.45`, **User blank**. Back/Edit buttons. `GET /api/bank-accounts/1003` → **200** (12 ms). | EVT-008 | [png](../screens/SEQ-002-06-bank-account-detail.png) |
+| 7 | (read-only DB trace) | `SELECT id,name,balance,user_id FROM bank_account WHERE name=$1` | `id 1003, name qa-seq002-mveut2zp-02u8, balance 123.45, user_id NULL` — name/balance stored as typed, **no owner recorded**. | — (evidence for EVT-007) | — |
 
 ## Seen, not explored
 | Screen / control | Where | Why not explored |
@@ -55,34 +55,35 @@ name and a balance, and sees it in the list.
 ## Data created and cleaned
 | Name | Type | Deleted? |
 |---|---|---|
-| `qa-seq002-mveut2zp-02u8` (id 1003) | bank account | ❌ Not yet - waiting for permission to delete (Q-004) |
-| `qa-seq002-mveuqzsq-f7km` (id 1002) | bank account | ❌ Not yet - created by an earlier run of this walk that failed at step 6 (Q-004) |
+| `qa-seq002-mveut2zp-02u8` (id 1003) | bank account | Retained by decision (Q-004 answered — see `docs/discovery/README.md`) |
+| `qa-seq002-mveuqzsq-f7km` (id 1002) | bank account | Retained by decision — created by an earlier failed run of this walk |
 
-No row that does not start with `qa-` was touched. The 31 rows shipped with the sample are unchanged.
+No row that does not start with `qa-` was touched. The 31 shipped rows are unchanged.
 
 ## Findings
-| # | What we saw | Screenshot | Severity guess | Raised as |
-|---|---|---|---|---|
-| 1 | An account created by the signed-in admin is stored with **`user_id = NULL`**. The UI never offers to default the owner to the signed-in user, the request sends `"user": null`, and the detail screen shows User blank. The journey in CLAUDE.md expects `user_id` to be the signed-in user - observed behaviour differs. | SEQ-002-06 | High (ownership / data model) | Q-005 |
-| 2 | `GET /api/bank-accounts` returns **every** account, with no filter by owner, and the list shows all 33. Whether a non-admin sees the same list was not tested in this walk (that is E2E-04). | SEQ-002-01 | Needs a decision | Q-006 |
-| 3 | On the empty create form, **Save is disabled and nothing explains why**. There is no asterisk, no `required`/`aria-required` attribute and no message; the only signal is a red bar on the left edge of the input. A user who cannot see colour gets no cue at all. | SEQ-002-02 | Medium (usability / accessibility) | — |
-| 4 | Opening the create form calls `GET /api/users`, so the form hands the browser the full list of application users (here `admin`, `user`) just to populate an optional drop-down. | SEQ-002-02 | Medium (data exposure) | Q-007 |
-| 5 | The success banner names an internal database identifier - "A new Bank Account is created with identifier 1003" - rather than the account the user typed. | SEQ-002-04 | Low | — |
-| 6 | The list renders all rows with no paging, no search and no sort control; it grows without limit as accounts are added. | SEQ-002-01 | Low (performance risk) | — |
-| 7 | A full page load of a malformed entity URL (`/bank-account//view`, produced accidentally during this walk) returned **HTTP 401** for the HTML document and rendered a completely blank page: no heading, empty `<title>`, no error message and no way back. | — (artifact only) | Medium | Q-008 |
-| 8 | The **response body** of `POST /api/bank-accounts` could not be read from the browser - the SPA navigates away and the read is aborted (`net::ERR_ABORTED`). Status 201 is recorded; the created id had to be read off the list row instead. Same effect on `GET /api/users` and `GET /api/bank-accounts/1003`. | — | Low (evidence gap) | — |
-| 9 | Clicking **Entities → Bank Account** navigates only after a short delay; a screenshot taken straight after the click still showed the home page. No request had been sent at that point. Re-run with an explicit wait, the navigation happened and `GET /api/bank-accounts` followed. Recorded because any UI test on this menu will need a condition-based wait, not an immediate assertion. | SEQ-001-05 | Low (flaky-test risk) | — |
+| # | What we saw | Severity guess | Raised as |
+|---|---|---|---|
+| 1 | Account created by admin stored with **`user_id=NULL`** — UI never defaults the owner; CLAUDE.md §1 expects it to be the signed-in user | High (ownership) | Q-005 |
+| 2 | `GET /api/bank-accounts` returns every account, no owner filter; whether `user` sees the same is untested here (E2E-04) | Needs a decision | Q-006 |
+| 3 | Empty create form: Save disabled with no asterisk/`required`/`aria-required`, only a red left bar | Medium (a11y) | — |
+| 4 | Opening the create form calls `GET /api/users`, downloading the full user list for an optional drop-down | Medium (data exposure) | Q-007 |
+| 5 | Success banner names the internal DB id ("...identifier 1003"), not the account the user typed | Low | — |
+| 6 | List renders all rows, no paging/search/sort, grows without limit | Low (performance) | — |
+| 7 | Malformed `/bank-account//view` (hit accidentally) → **HTTP 401**, blank page, no heading/message/way back | Medium | Q-008 |
+| 8 | `POST /api/bank-accounts` response body unreadable (`net::ERR_ABORTED`); created id had to be read off the list row. Same on `GET /api/users`, `GET /api/bank-accounts/1003` | Low (evidence gap) | — |
+| 9 | Entities → Bank Account navigates after a short delay; a screenshot right after the click still showed the home page — needs a condition-based wait | Low (flaky-test risk) | — |
 
 ## Questions
-| ID | Question | Blocks |
-|---|---|---|
-| Q-004 | May discovery delete the two `qa-` bank accounts it created (ids 1002, 1003)? This is the first destructive action of the run; CLAUDE.md section 5 requires asking once per action type. | Cleanup of this walk; sequences for flow 6-7 |
-| Q-005 | Should a bank account created through the UI be owned by the signed-in user? Today `user_id` is NULL unless the creator picks an owner by hand. | Whether finding 1 becomes a bug; the DB check for flow 2 |
-| Q-006 | Is the bank account list meant to show every account to every signed-in user, or only the ones they own? | E2E-04, the object-level access tests |
-| Q-007 | Should the create form expose the full user list (`GET /api/users`) to any signed-in user, or only to admins? | Security test set |
-| Q-008 | What should a malformed entity URL show? Today it is a blank page with a 401 and no message. | Error-handling tests |
+| ID | Question |
+|---|---|
+| Q-004 | May discovery delete the two `qa-` accounts it created (1002, 1003)? First destructive action — CLAUDE.md §5 asks once per action type. |
+| Q-005 | Should a bank account be owned by the signed-in user? Today `user_id` is NULL unless picked by hand. |
+| Q-006 | Should the list show every account to every user, or only owned ones? |
+| Q-007 | Should the create form expose the full user list to any signed-in user? |
+| Q-008 | What should a malformed entity URL show? Today: blank page, 401, no message. |
 
 ## Change log
-| CR | Date | Change |
-|---|---|---|
-| — | 2026-10-19 | First walk. |
+| Date | Change |
+|---|---|
+| 2026-10-19 | First walk. |
+| 2026-10-19 | Tightened for length (CLAUDE.md §12); updated "Data created" to match the Q-004 retention decision. No facts/IDs removed. |

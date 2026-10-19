@@ -1,0 +1,27 @@
+{
+  "$id": "error-response.schema.json",
+  "type": "object",
+  "required": ["status"],
+  "properties": {
+    "type": { "type": "string" },
+    "title": { "type": "string" },
+    "status": { "type": "integer" },
+    "detail": { "type": "string" },
+    "instance": { "type": "string" },
+    "message": { "type": "string" },
+    "path": { "type": "string" },
+    "fieldErrors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["field", "message"],
+        "properties": {
+          "objectName": { "type": "string" },
+          "field": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

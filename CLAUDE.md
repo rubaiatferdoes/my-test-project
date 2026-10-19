@@ -229,6 +229,23 @@ Write so a junior QA can follow without asking: short sentences, tables
 and checklists, explain jargon the first time. Unknowns are marked
 `ASSUMPTION — verify` or raised as a `Q-` question. Never guess silently.
 
+**Keep every output document short.** A long file is a failure of this
+rule, not thoroughness:
+
+- State a fact once, where it belongs. Don't repeat the same finding's
+  background or justification in three sections because it's "relevant"
+  to each — link the ID (`Q-009`, `VAL-002`) instead of re-explaining it.
+- One table row or one short bullet per item. If a cell needs more than
+  one sentence to justify itself, the justification probably belongs in
+  the source file (the sequence/event/validation doc), not copied forward.
+- No meta-commentary about the process unless it changes what the next
+  agent or reviewer must do. Cut throat-clearing, restating the rule
+  you're about to follow, or narrating that you followed it.
+- Prefer deleting a caveat over qualifying it twice. Say the limit once.
+- Before finishing a document, reread it and cut anything a junior QA
+  would skim past — if a section repeats another section's point, remove
+  the weaker copy.
+
 ## 13. What we are actually measuring
 
 The sample app is the subject; **the framework is the experiment.** After

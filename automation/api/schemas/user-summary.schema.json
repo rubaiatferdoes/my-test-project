@@ -1,0 +1,12 @@
+{
+  "$id": "user-summary.schema.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "login"],
+    "properties": {
+      "id": { "type": "integer" },
+      "login": { "type": "string" }
+    }
+  }
+}

@@ -43,10 +43,16 @@ filed. Never announce a bug as filed, and never close one.
 
 - **Title:** `[Area] <what goes wrong> when <condition>`
   e.g. `[API Key] Revoked key still returns 200 after 5 minutes`
-- **Steps:** numbered, one action each, starting from a known state.
-  Include the exact data used (dummy `qa-` data only).
+- **Steps:** numbered, one plain action each, starting from a known
+  state — written the way the tester actually clicked through it ("Click
+  Create a new Bank Account") or called it ("Call the create-bank-account
+  API"), not selectors or raw payloads. Include the exact data used
+  (dummy `qa-` data only). Same plain style as the test case's own Steps
+  (`test-case-design` skill) — a developer reproducing the bug shouldn't
+  need to decode either one.
 - **Expected:** quote the requirement or test case (BR-/TC- ID).
-- **Actual:** what happened — exact message, status code, response.
+- **Actual:** what happened — exact message, status code, response. This
+  is where the technical detail belongs, not in the steps above it.
 - **Evidence:** screenshot, trace, request/response (with keys masked:
   `sk_...a1b2`), timestamp, environment build/version.
 - Facts only. No blame, no guessing at the cause in the main sections —

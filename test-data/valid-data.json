@@ -1,0 +1,74 @@
+[
+  {
+    "id": "DAT-001",
+    "field": "login",
+    "value": { "username": "admin", "password": "{from .env ADMIN_PASSWORD}" },
+    "expected": "Signs in; reaches the signed-in home page",
+    "rule": "SEQ-001",
+    "used_by": ["TC-001"]
+  },
+  {
+    "id": "DAT-002",
+    "field": "name",
+    "value": "{qa-name}",
+    "expected": "201 — accepted, appears in the bank accounts list with this name",
+    "rule": "VAL-001",
+    "used_by": ["TC-006", "TC-008", "TC-009", "TC-010", "TC-012", "TC-014", "TC-015"]
+  },
+  {
+    "id": "DAT-003",
+    "field": "balance",
+    "value": 250.75,
+    "expected": "201 — accepted, a valid decimal within decimal(21,2)",
+    "rule": "VAL-003",
+    "used_by": ["TC-006", "TC-008", "TC-010", "TC-012", "TC-013", "TC-014", "TC-015"]
+  },
+  {
+    "id": "DAT-004",
+    "field": "name",
+    "value": "{qa-name}",
+    "expected": "201 on each of the 25 calls; no rejection observed below the cap (limit itself still UNKNOWN — Q-014)",
+    "rule": "VAL-009",
+    "used_by": ["TC-013"]
+  },
+  {
+    "id": "DAT-005",
+    "field": "user",
+    "value": null,
+    "expected": "201 — User is optional; account created with no owner set",
+    "rule": "SEQ-002",
+    "used_by": ["TC-006"]
+  },
+  {
+    "id": "DAT-006",
+    "field": "name",
+    "value": "{qa-name}",
+    "expected": "typed alone — Save stays disabled because Balance is still empty",
+    "rule": "VAL-007",
+    "used_by": ["TC-011"]
+  },
+  {
+    "id": "DAT-007",
+    "field": "balance",
+    "value": "0",
+    "expected": "typed alone — Save stays disabled because Name is still empty; 0 is a valid balance once Name is present",
+    "rule": "VAL-007",
+    "used_by": ["TC-011"]
+  },
+  {
+    "id": "DAT-008",
+    "field": "account",
+    "value": { "name": "{qa-name}", "balance": "0" },
+    "expected": "both fields hold a value — Save becomes enabled",
+    "rule": "VAL-007",
+    "used_by": ["TC-011"]
+  },
+  {
+    "id": "DAT-009",
+    "field": "id",
+    "value": null,
+    "expected": "201 — id omitted on create, the server assigns one",
+    "rule": "VAL-006",
+    "used_by": ["TC-010"]
+  }
+]

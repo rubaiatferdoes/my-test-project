@@ -1,0 +1,202 @@
+[
+  {
+    "id": "DAT-010",
+    "field": "login",
+    "value": { "username": "", "password": "qa-filler-pw1" },
+    "expected": "400 — \"size must be between 1 and 254\"",
+    "rule": "VAL-010",
+    "used_by": ["TC-002"]
+  },
+  {
+    "id": "DAT-011",
+    "field": "login",
+    "value": { "username": "q", "password": "qa-filler-pw1" },
+    "expected": "401 — \"user not found\"; a 1-character username is accepted as a length",
+    "rule": "VAL-010",
+    "used_by": ["TC-002"]
+  },
+  {
+    "id": "DAT-012",
+    "field": "login",
+    "value": { "username": "{repeat:q:254}", "password": "qa-filler-pw1" },
+    "expected": "401 — accepted as a length, rejected only on the account lookup (boundary: max)",
+    "rule": "VAL-011",
+    "used_by": ["TC-002"]
+  },
+  {
+    "id": "DAT-013",
+    "field": "login",
+    "value": { "username": "{repeat:q:255}", "password": "qa-filler-pw1" },
+    "expected": "400 — \"size must be between 1 and 254\" (boundary: max+1)",
+    "rule": "VAL-011",
+    "used_by": ["TC-002"]
+  },
+  {
+    "id": "DAT-014",
+    "field": "login",
+    "value": { "username": "{repeat:q:256}", "password": "qa-filler-pw1" },
+    "expected": "400 — same message as 255 characters, never a server error",
+    "rule": "VAL-011",
+    "used_by": ["TC-002"]
+  },
+  {
+    "id": "DAT-015",
+    "field": "login",
+    "value": { "username": "qa-nosuchuser", "password": "" },
+    "expected": "400 — \"size must be between 4 and 100\"",
+    "rule": "VAL-012",
+    "used_by": ["TC-003"]
+  },
+  {
+    "id": "DAT-016",
+    "field": "login",
+    "value": { "username": "qa-nosuchuser", "password": "qaX" },
+    "expected": "400 — same message (boundary: min-1); the response echoes the password value back (Finding 3, auth.validations.md)",
+    "rule": "VAL-012",
+    "used_by": ["TC-003"]
+  },
+  {
+    "id": "DAT-017",
+    "field": "login",
+    "value": { "username": "admin", "password": "{repeat:q:4}" },
+    "expected": "401 — \"bad credentials\"; a 4-character password is accepted as a length (boundary: min)",
+    "rule": "VAL-012",
+    "used_by": ["TC-003"]
+  },
+  {
+    "id": "DAT-018",
+    "field": "login",
+    "value": { "username": "admin", "password": "{repeat:q:100}" },
+    "expected": "401 — \"bad credentials\", accepted at the upper length limit (boundary: max)",
+    "rule": "VAL-013",
+    "used_by": ["TC-003"]
+  },
+  {
+    "id": "DAT-019",
+    "field": "login",
+    "value": { "username": "admin", "password": "{repeat:q:101}" },
+    "expected": "400 — \"size must be between 4 and 100\" (boundary: max+1)",
+    "rule": "VAL-013",
+    "used_by": ["TC-003"]
+  },
+  {
+    "id": "DAT-020",
+    "field": "login",
+    "value": { "username": "admin", "password": "qa-wrong-pw1" },
+    "expected": "UI: \"Failed to sign in! Please check your credentials and try again.\" · API: 401 \"bad credentials\"",
+    "rule": "VAL-014",
+    "used_by": ["TC-004"]
+  },
+  {
+    "id": "DAT-021",
+    "field": "login",
+    "value": { "username": "qa-nosuchuser", "password": "qa-any-pw1" },
+    "expected": "UI: same generic message as row 1 · API: 401 \"user not found\" (enumeration gap — Q-016)",
+    "rule": "VAL-014",
+    "used_by": ["TC-004"]
+  },
+  {
+    "id": "DAT-022",
+    "field": "name",
+    "value": "",
+    "expected": "UI: \"This field is required.\" shown under Name; nothing is sent to the server",
+    "rule": "VAL-001",
+    "used_by": ["TC-007"]
+  },
+  {
+    "id": "DAT-023",
+    "field": "name",
+    "value": "",
+    "expected": "API: 201 — creates an account with a blank name; client-only rule (Finding 2, accounts.validations.md)",
+    "rule": "VAL-002",
+    "used_by": ["TC-007"]
+  },
+  {
+    "id": "DAT-024",
+    "field": "balance",
+    "value": null,
+    "expected": "API: 400 — \"must not be null\"",
+    "rule": "VAL-003",
+    "used_by": ["TC-008"]
+  },
+  {
+    "id": "DAT-025",
+    "field": "balance",
+    "value": "",
+    "expected": "API: 400 — \"must not be null\" (empty string rejected the same as null)",
+    "rule": "VAL-003",
+    "used_by": ["TC-008"]
+  },
+  {
+    "id": "DAT-026",
+    "field": "balance",
+    "value": "",
+    "expected": "UI: shows both \"This field is required.\" and \"This field should be a number.\" under Balance at once",
+    "rule": "VAL-003",
+    "used_by": ["TC-008"]
+  },
+  {
+    "id": "DAT-027",
+    "field": "balance",
+    "value": "12abc",
+    "expected": "UI: the field keeps only \"12\" — letters are dropped as you type",
+    "rule": "VAL-005",
+    "used_by": ["TC-009"]
+  },
+  {
+    "id": "DAT-028",
+    "field": "balance",
+    "value": "1e999",
+    "expected": "UI: the field clears itself; shows both \"required\" and \"should be a number\"",
+    "rule": "VAL-004",
+    "used_by": ["TC-009"]
+  },
+  {
+    "id": "DAT-029",
+    "field": "balance",
+    "value": "12abc",
+    "expected": "API: 400 — rejected cleanly (\"Failed to read request\")",
+    "rule": "VAL-004",
+    "used_by": ["TC-009"]
+  },
+  {
+    "id": "DAT-030",
+    "field": "id",
+    "value": 424242,
+    "expected": "API: 400 — \"error.idexists\"; a client-supplied id is rejected",
+    "rule": "VAL-006",
+    "used_by": ["TC-010"]
+  },
+  {
+    "id": "DAT-031",
+    "field": "name",
+    "value": "{repeat:q:256}",
+    "expected": "ASSUMPTION — verify (Q-010): target is a clean 400 naming the problem, never a server error, never leaking the SQL insert. Today the app returns HTTP 500 (Finding 1) — do not assert that.",
+    "rule": "Q-010",
+    "used_by": ["TC-015"]
+  },
+  {
+    "id": "DAT-032",
+    "field": "balance",
+    "value": "1e20",
+    "expected": "ASSUMPTION — verify (Q-012): target is a clean 400, never a server error. Today the app returns HTTP 500 \"numeric field overflow\" (Finding 4) — do not assert that.",
+    "rule": "Q-012",
+    "used_by": ["TC-015"]
+  },
+  {
+    "id": "DAT-033",
+    "field": "balance",
+    "value": "1e999",
+    "expected": "ASSUMPTION — verify (Q-012): target is a clean 400, never a server error. Today the app returns HTTP 500 (Finding 4) — do not assert that.",
+    "rule": "Q-012",
+    "used_by": ["TC-015"]
+  },
+  {
+    "id": "DAT-034",
+    "field": "user",
+    "value": { "id": 99999 },
+    "expected": "ASSUMPTION — verify (Q-007): target is a clean 400, never a server error, never leaking the FK constraint name. Today the app returns HTTP 500 (Findings 5, 6) — do not assert that.",
+    "rule": "Q-007",
+    "used_by": ["TC-015"]
+  }
+]
