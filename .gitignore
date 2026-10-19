@@ -1,0 +1,19 @@
+# Secrets — never commit
+.env
+
+# Discovery raw recordings (network logs, DOM dumps) — evidence is copied
+# into docs/discovery/screens/ instead
+automation/discovery/artifacts/
+automation/discovery/.auth/
+
+# Test output
+automation/node_modules/
+automation/reports/
+automation/test-results/
+automation/playwright-report/
+
+# IDE
+.idea/
+
+# Python
+__pycache__/
